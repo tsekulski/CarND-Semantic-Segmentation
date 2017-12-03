@@ -33,7 +33,20 @@ def load_vgg(sess, vgg_path):
     vgg_layer4_out_tensor_name = 'layer4_out:0'
     vgg_layer7_out_tensor_name = 'layer7_out:0'
     
-    return None, None, None, None, None
+    #load VGG16 model graph from file
+    tf.save_model.loader.load(sess, [vgg_tag], vgg_path)
+    
+    #grab the graph in a variable
+    graph = tf.get_default_graph()
+    
+    #extract outputs (tensors) from selected VGG16 layers as specified above
+    w1 = graph.get_tensor_by_name(vgg_input_tensor_name)
+    keep = graph.get_tensor_by_name(vgg_keep_prob_tensor_name)
+    vgg_layer3_out = graph.get_tensor_by_name(vgg_layer3_out_tensor_name)
+    vgg_layer4_out = graph.get_tensor_by_name(vgg_layer4_out_tensor_name)
+    vgg_layer7_out = graph.get_tensor_by_name(vgg_layer7_out_tensor_name)
+    
+    return w1, keep, vgg_layer3_out, vgg_layer4_out, vgg_layer7_out
 tests.test_load_vgg(load_vgg, tf)
 
 
@@ -47,6 +60,10 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
     :return: The Tensor for the last layer of output
     """
     # TODO: Implement function
+    #1x1 convolution instead of fully connected layer - in order to preserve spatial information
+    conv_1x1 = tf.layers.conv2d(vgg_layer_7_out, num_classes, 1, padding='same',
+                                kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
+    
     return None
 tests.test_layers(layers)
 
