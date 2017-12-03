@@ -61,8 +61,19 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
     """
     # TODO: Implement function
     #1x1 convolution instead of fully connected layer - in order to preserve spatial information
-    conv_1x1 = tf.layers.conv2d(vgg_layer_7_out, num_classes, 1, padding='same',
+    vgg_layer_7_conv_1x1 = tf.layers.conv2d(vgg_layer_7_out, num_classes, 1, padding='same',
                                 kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
+    vgg_layer_4_conv_1x1 = tf.layers.conv2d(vgg_layer_4_out, num_classes, 1, padding='same',
+                                kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
+    vgg_layer_3_conv_1x1 = tf.layers.conv2d(vgg_layer_3_out, num_classes, 1, padding='same',
+                                kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
+    
+    #upsample 2x
+    vgg_layer_7_upsampled = tf.layers.conv2d_transpose(vgg_layer_7_conv_1x1, num_classes, 4, 2, padding='same',
+                                kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
+    
+    #add skip connection - by combining output of two layers
+    vgg_layer_4_skip = tf.add(vgg_layer_7_upsampled, vgg_layer_4_conv_1x1)
     
     return None
 tests.test_layers(layers)
