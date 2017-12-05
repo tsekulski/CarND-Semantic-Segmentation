@@ -60,7 +60,11 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
     :return: The Tensor for the last layer of output
     """
     # TODO: Implement function
-    #1x1 convolution instead of fully connected layer - in order to preserve spatial information
+    
+    # 1x1 convolution instead of fully connected layer - in order to preserve spatial information
+    # I apply 1x1 convolution to each vgg layer in order to align the output dimensions (num_classes)
+    # for the skip connections later on,
+    # and also to make an intermediate "prediction" of the two classes at each of the vgg layers.
     vgg_layer_7_conv_1x1 = tf.layers.conv2d(vgg_layer_7_out, num_classes, 1, padding='same',
                                 kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
     vgg_layer_4_conv_1x1 = tf.layers.conv2d(vgg_layer_4_out, num_classes, 1, padding='same',
@@ -75,7 +79,17 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
     #add skip connection - by combining output of two layers
     vgg_layer_4_skip = tf.add(vgg_layer_7_upsampled, vgg_layer_4_conv_1x1)
     
-    return None
+    #upsample 2x
+    vgg_layer_4_upsampled = tf.layers.conv2d_transpose(vgg_layer_4_skip, num_classes, 4, 2, padding='same',
+                                kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
+    
+    #add skip connection
+    vgg_layer_3_skip = tf.add(vgg_layer_4_upsampled, vgg_layer_3_conv_1x1)
+    
+    #upsample 8x
+    vgg_layer_3_upsampled = tf.layers.conv2d_transpose(vgg_layer_3_skip, num_classes, 16, 8, padding='same',
+                                kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3)) 
+    return vgg_layer_3_upsampled
 tests.test_layers(layers)
 
 
