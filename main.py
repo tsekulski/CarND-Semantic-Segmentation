@@ -6,7 +6,6 @@ from distutils.version import LooseVersion
 import project_tests as tests
 from time import time
 
-
 # Check TensorFlow Version
 assert LooseVersion(tf.__version__) >= LooseVersion('1.0'), 'Please use TensorFlow version 1.0 or newer.  You are using {}'.format(tf.__version__)
 print('TensorFlow Version: {}'.format(tf.__version__))
@@ -35,7 +34,7 @@ def load_vgg(sess, vgg_path):
     vgg_layer7_out_tensor_name = 'layer7_out:0'
     
     #load VGG16 model graph from file
-    tf.save_model.loader.load(sess, [vgg_tag], vgg_path)
+    tf.saved_model.loader.load(sess, [vgg_tag], vgg_path)
     
     #grab the graph in a variable
     graph = tf.get_default_graph()
@@ -66,11 +65,11 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
     # I apply 1x1 convolution to each vgg layer in order to align the output dimensions (num_classes)
     # for the skip connections later on,
     # and also to make an intermediate "prediction" of the two classes at each of the vgg layers.
-    vgg_layer_7_conv_1x1 = tf.layers.conv2d(vgg_layer_7_out, num_classes, 1, padding='same',
+    vgg_layer_7_conv_1x1 = tf.layers.conv2d(vgg_layer7_out, num_classes, 1, padding='same',
                                 kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
-    vgg_layer_4_conv_1x1 = tf.layers.conv2d(vgg_layer_4_out, num_classes, 1, padding='same',
+    vgg_layer_4_conv_1x1 = tf.layers.conv2d(vgg_layer4_out, num_classes, 1, padding='same',
                                 kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
-    vgg_layer_3_conv_1x1 = tf.layers.conv2d(vgg_layer_3_out, num_classes, 1, padding='same',
+    vgg_layer_3_conv_1x1 = tf.layers.conv2d(vgg_layer3_out, num_classes, 1, padding='same',
                                 kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
     
     #upsample 2x
@@ -116,7 +115,7 @@ def optimize(nn_last_layer, correct_label, learning_rate, num_classes):
     
     # Logits is now a 2D tensor where each row represents a pixel and each column a class.
     # From here we can just use standard cross entropy loss.
-    cross_entropy_loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits, labels))
+    cross_entropy_loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=labels))
     
     # Define optimizer and training operation
     optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
@@ -159,14 +158,15 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
             print("Loss = {:.3f}".format(loss))
         
         # print training time
-        print "Time elapsed so far:", round(time()-t0, 3), "s"
+        print ("Time elapsed so far:", round(time()-t0, 3), "s")
         print()
     
-    print "Total training time:", round(time()-t0, 3), "s"
+    print ("Total training time:", round(time()-t0, 3), "s")
 tests.test_train_nn(train_nn)
 
 
 def run():
+    print("Running the run function...")
     num_classes = 2
     image_shape = (160, 576)
     data_dir = './data'
@@ -174,6 +174,7 @@ def run():
     tests.test_for_kitti_dataset(data_dir)
 
     # Download pretrained vgg model
+    print("Downloading pretrained VGG16 model...")
     helper.maybe_download_pretrained_vgg(data_dir)
 
     # OPTIONAL: Train and Inference on the cityscapes dataset instead of the Kitti dataset.
@@ -190,12 +191,15 @@ def run():
         #  https://datascience.stackexchange.com/questions/5224/how-to-prepare-augment-images-for-neural-network
 
         # TODO: Build NN using load_vgg, layers, and optimize function
+        print("Loading VGG16 graph...")
         input_image, keep_prob, vgg_layer3_out, vgg_layer4_out, vgg_layer7_out = load_vgg(sess, vgg_path)
+        print("Creating FCN layers...")
         nn_last_layer = layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes)
         
         correct_label = tf.placeholder(tf.int32) #just a placeholder since correct_label will come from get_batches_fn function
         learning_rate = tf.placeholder(tf.float32) #just a placeholder since learning_rate is defined manually in the train_nn function
         
+        print("Building TensorFLow loss and optimizer operations...")
         logits, train_op, cross_entropy_loss = optimize(nn_last_layer, correct_label, learning_rate, num_classes)
 
         # TODO: Train NN using the train_nn function
@@ -210,7 +214,6 @@ def run():
         helper.save_inference_samples(runs_dir, data_dir, sess, image_shape, logits, keep_prob, input_image)
 
         # OPTIONAL: Apply the trained model to a video
-
 
 if __name__ == '__main__':
     run()

@@ -57,6 +57,7 @@ class TmpMock(object):
 
 @test_safe
 def test_load_vgg(load_vgg, tf_module):
+    #print("Testing load_vgg...")
     with TmpMock(tf_module.saved_model.loader, 'load') as mock_load_model:
         vgg_path = ''
         sess = tf.Session()
@@ -82,6 +83,7 @@ def test_load_vgg(load_vgg, tf_module):
 
 @test_safe
 def test_layers(layers):
+    #print("Testing test_layers...")
     num_classes = 2
     vgg_layer3_out = tf.placeholder(tf.float32, [None, None, None, 256])
     vgg_layer4_out = tf.placeholder(tf.float32, [None, None, None, 512])
@@ -93,6 +95,7 @@ def test_layers(layers):
 
 @test_safe
 def test_optimize(optimize):
+    #print("Testing optimize...")
     num_classes = 2
     shape = [2, 3, 4, num_classes]
     layers_output = tf.Variable(tf.zeros(shape))
@@ -112,6 +115,7 @@ def test_optimize(optimize):
 
 @test_safe
 def test_train_nn(train_nn):
+    #print("Testing train_nn...")
     epochs = 1
     batch_size = 2
 
