@@ -219,7 +219,7 @@ def run():
         logits, train_op, cross_entropy_loss = optimize(nn_last_layer, correct_label, learning_rate, num_classes)
 
         # TODO: Train NN using the train_nn function
-        epochs = 2
+        epochs = 12
         batch_size = 5
         
         sess.run(tf.global_variables_initializer())
