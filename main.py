@@ -66,14 +66,18 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
     # for the skip connections later on,
     # and also to make an intermediate "prediction" of the two classes at each of the vgg layers.
     vgg_layer_7_conv_1x1 = tf.layers.conv2d(vgg_layer7_out, num_classes, 1, padding='same',
+                                kernel_initializer= tf.random_normal_initializer(stddev=0.01),
                                 kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
     vgg_layer_4_conv_1x1 = tf.layers.conv2d(vgg_layer4_out, num_classes, 1, padding='same',
+                                kernel_initializer= tf.random_normal_initializer(stddev=0.01),
                                 kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
     vgg_layer_3_conv_1x1 = tf.layers.conv2d(vgg_layer3_out, num_classes, 1, padding='same',
+                                kernel_initializer= tf.random_normal_initializer(stddev=0.01),
                                 kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
     
     #upsample 2x
     vgg_layer_7_upsampled = tf.layers.conv2d_transpose(vgg_layer_7_conv_1x1, num_classes, 4, 2, padding='same',
+                                kernel_initializer= tf.random_normal_initializer(stddev=0.01),
                                 kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
     
     #add skip connection - by combining output of two layers
@@ -81,6 +85,7 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
     
     #upsample 2x
     vgg_layer_4_upsampled = tf.layers.conv2d_transpose(vgg_layer_4_skip, num_classes, 4, 2, padding='same',
+                                kernel_initializer= tf.random_normal_initializer(stddev=0.01),
                                 kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
     
     #add skip connection
@@ -88,6 +93,7 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
     
     #upsample 8x
     nn_last_layer = tf.layers.conv2d_transpose(vgg_layer_3_skip, num_classes, 16, 8, padding='same',
+                                kernel_initializer= tf.random_normal_initializer(stddev=0.01),
                                 kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3)) 
     return nn_last_layer
 tests.test_layers(layers)
