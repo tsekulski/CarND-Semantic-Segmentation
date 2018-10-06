@@ -1,5 +1,11 @@
 # Semantic Segmentation
 
+_Technologies: Deep Learning, Fully Convolutional Networks, TensorFlow_
+
+Labeled the pixels of a road in images using a Fully Convolutional Network (FCN).
+
+_Part of the Self-Driving Car Engineer Nanodegree Program_
+
 ### Introduction
 In this project, I labeled the pixels of a road in images using a Fully Convolutional Network (FCN). I modified/expanded the starter code as provided in Udacity's [CarND-Semantic-Segmentation](https://github.com/udacity/CarND-Semantic-Segmentation) repo.
 
